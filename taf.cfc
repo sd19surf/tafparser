@@ -5,6 +5,7 @@
 
     <cffunction name="getVis" access="public" output="no" returntype ="string" hint="returns vis as string">
         <cfargument name="tafLine" required="true" type="any">
+        <cfargument name="convert" required="false" type="boolean" default="true">
         <cfparam name="vis" type="string" default="">
         <cfscript>
             // when start=1, returnSubexpressions=true, and scope="one"
@@ -15,7 +16,11 @@
                 }
             }
         </cfscript>
-        <cfreturn metersToMiles(vis.match[1])>
+        <cfif convert>
+            <cfreturn metersToMiles(vis.match[1])>
+        <cfelse>
+            <cfreturn vis.match[1]>
+        </cfif>
     </cffunction>
 
     <cffunction name="getClouds" access="public" output="no" returntype="array" hint="returns clouds as string">
@@ -25,8 +30,8 @@
             // when start=1, returnSubexpressions=true, and scope="one"
             tafLine = tafLine.Split(' ');
             for (element in tafLine){                
-                if (REFind("^[A-Z]{3}[0-9]{3}$|^[V]{2}[0-9]{3}$|^SKC", trim(element),1,false,"one")){
-                    cloudMatch = (REFind("^[A-Z]{3}[0-9]{3}$|^[V]{2}[0-9]{3}$|SKC", trim(element),1,true,"one"));
+                if (REFind("^[A-Z]{3}[0-9]{3}|^[V]{2}[0-9]{3}|^SKC", trim(element),1,false,"one")){
+                    cloudMatch = (REFind("^[A-Z]{3}[0-9]{3}|^[V]{2}[0-9]{3}|SKC", trim(element),1,true,"one"));
                     ArrayAppend(clouds,cloudMatch.match[1],"true");
                 }
             }
@@ -38,6 +43,8 @@
         <cfargument name="cloudLayers" type="array" required="true">
         <cfparam name="ceiling" type="numeric" default="999">
         <!---add ceiling and cloud logic--->
+        <!---could have a CB appended should check and filter--->
+        
         <cfscript>
             for (cloudLayer in cloudLayers){
               if (cloudLayer != "SKC"){ // no levels when Sky is clear
